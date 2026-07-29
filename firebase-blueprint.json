@@ -1,0 +1,45 @@
+{
+  "entities": {
+    "students": {
+      "title": "Student Evaluations",
+      "description": "Data hasil belajar, skor pos, dan catatan evaluasi siswa sosiologi.",
+      "type": "object",
+      "properties": {
+        "studentName": { "type": "string" },
+        "avatarId": { "type": "string" },
+        "profileType": { "type": "string" },
+        "pretestScore": { "type": "number" },
+        "postsCompleted": { "type": "number" },
+        "livesRemaining": { "type": "number" },
+        "evalScore": { "type": "number" },
+        "grade": { "type": "string" },
+        "status": { "type": "string" },
+        "teacherNotes": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["studentName", "profileType"]
+    },
+    "modules": {
+      "title": "Sociology Modules",
+      "description": "Modul materi sosiologi multikultural dan video.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "badge": { "type": "string" }
+      },
+      "required": ["title"]
+    },
+    "posts": {
+      "title": "Expedition Posts",
+      "description": "Skenario dan pertanyaan pos ekspedisi sosiologi.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "location": { "type": "string" },
+        "scenario": { "type": "string" }
+      },
+      "required": ["title", "location"]
+    }
+  }
+}

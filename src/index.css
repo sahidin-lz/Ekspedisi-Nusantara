@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    background-color: #1a100a;
+    background-image: 
+      radial-gradient(circle at 50% 0%, #3d261a 0%, transparent 75%),
+      radial-gradient(circle at 100% 100%, #152213 0%, transparent 50%),
+      radial-gradient(circle at 0% 100%, #2b1810 0%, transparent 50%);
+    background-attachment: fixed;
+    color: #fef3c7;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    min-height: 100vh;
+  }
+}
+
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-spin-slow {
+  animation: spinSlow 20s linear infinite;
+}
+
+.animate-float {
+  animation: floatSlow 4s ease-in-out infinite;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Custom Scrollbar for Adventure Feel */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #2b1810;
+}
+::-webkit-scrollbar-thumb {
+  background: #8c5a3c;
+  border-radius: 5px;
+  border: 2 border #2b1810;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a67c52;
+}
