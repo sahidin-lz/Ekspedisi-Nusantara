@@ -128,13 +128,40 @@ export const DiagnosticAssessment: React.FC<DiagnosticAssessmentProps> = ({ onCo
               Selamat, Hero <span className="text-amber-800 underline">{name}</span>!
             </h3>
 
-            {/* STATUS CLASS BADGE */}
-            <div className="pt-2">
-              <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#214a36] to-[#10291d] text-amber-100 rounded-2xl border-2 border-emerald-400 shadow-xl text-lg font-bold font-serif">
-                {calculatedRole === 'Jurnalis' && <Headphones className="w-6 h-6 text-amber-300" />}
-                {calculatedRole === 'Fotografer' && <Eye className="w-6 h-6 text-amber-300" />}
-                {calculatedRole === 'Petualang' && <Activity className="w-6 h-6 text-amber-300" />}
-                <span>STATUS RPG CLASS: {calculatedRole.toUpperCase()}</span>
+            {/* STATUS CLASS BADGE & INTERACTIVE SELECTOR */}
+            <div className="pt-2 space-y-2">
+              <span className="text-xs font-bold text-[#3d261a] block">
+                🎯 Klik untuk Pilih / Ganti Jenis Petualangan:
+              </span>
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                {(['Jurnalis', 'Fotografer', 'Petualang'] as ProfileType[]).map((role) => {
+                  const isSelected = calculatedRole === role;
+                  return (
+                    <button
+                      key={role}
+                      type="button"
+                      onClick={() => {
+                        soundFx.playClick();
+                        setCalculatedRole(role);
+                      }}
+                      className={`px-4 py-2.5 rounded-2xl border-2 font-bold font-serif text-xs md:text-sm flex items-center gap-2 transition-all shadow-md ${
+                        isSelected
+                          ? 'bg-gradient-to-r from-[#214a36] to-[#10291d] text-amber-100 border-emerald-400 ring-2 ring-emerald-500 scale-105'
+                          : 'bg-[#fcf8ef] text-[#3d261a] border-[#b89b72] hover:bg-amber-100'
+                      }`}
+                    >
+                      {role === 'Jurnalis' && <Headphones className="w-4 h-4 text-amber-300" />}
+                      {role === 'Fotografer' && <Eye className="w-4 h-4 text-amber-300" />}
+                      {role === 'Petualang' && <Activity className="w-4 h-4 text-amber-300" />}
+                      <span>{role === 'Jurnalis' ? '🗞️ Jurnalis' : role === 'Fotografer' ? '📸 Fotografer' : '🧭 Petualang'}</span>
+                      {isSelected && (
+                        <span className="text-[10px] bg-amber-400 text-emerald-950 font-black px-1.5 py-0.5 rounded-full ml-1">
+                          Aktif
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>

@@ -29,13 +29,26 @@ import {
 interface LearningCampProps {
   player: PlayerProfile;
   onStartGame: () => void;
+  onUpdateProfileType?: (newType: ProfileType) => void;
 }
 
-export const LearningCamp: React.FC<LearningCampProps> = ({ player, onStartGame }) => {
+export const LearningCamp: React.FC<LearningCampProps> = ({
+  player,
+  onStartGame,
+  onUpdateProfileType,
+}) => {
   const [activeType, setActiveType] = useState<ProfileType>(player.profileType);
   const [mediaMode, setMediaMode] = useState<'all' | 'video' | 'text' | 'visual' | 'interactive'>('all');
   const [openChests, setOpenChests] = useState<Record<string, boolean>>({});
   const [showGateModal, setShowGateModal] = useState<boolean>(false);
+
+  const handleSelectType = (t: ProfileType) => {
+    soundFx.playClick();
+    setActiveType(t);
+    if (onUpdateProfileType) {
+      onUpdateProfileType(t);
+    }
+  };
 
   const toggleChest = (chestKey: string) => {
     soundFx.playChestOpen();
@@ -59,6 +72,8 @@ export const LearningCamp: React.FC<LearningCampProps> = ({ player, onStartGame 
         <PreMissionGateModal
           onPassGate={handlePassGateAndStart}
           onCancel={() => setShowGateModal(false)}
+          activeProfileType={activeType}
+          onUpdateProfileType={handleSelectType}
         />
       )}
       {/* Ancient Wooden Decor Corners */}
@@ -83,10 +98,7 @@ export const LearningCamp: React.FC<LearningCampProps> = ({ player, onStartGame 
               {(['Jurnalis', 'Fotografer', 'Petualang'] as ProfileType[]).map((t) => (
                 <button
                   key={t}
-                  onClick={() => {
-                    soundFx.playClick();
-                    setActiveType(t);
-                  }}
+                  onClick={() => handleSelectType(t)}
                   className={`px-3 py-1 rounded-lg text-xs font-bold transition ${
                     activeType === t
                       ? 'bg-amber-400 text-emerald-950 font-black shadow-md'
@@ -309,13 +321,54 @@ export const LearningCamp: React.FC<LearningCampProps> = ({ player, onStartGame 
       </div>
 
       {/* Start Adventure Mission Button - Triggers Pre-Mission Verification Gate */}
-      <div className="text-center pt-6 border-t-2 border-[#b89b72] space-y-3">
+      <div className="text-center pt-6 border-t-2 border-[#b89b72] space-y-5">
+        {/* Jenis Petualangan Selection Card */}
+        <div className="bg-[#ebd2b0]/90 p-5 rounded-2xl border-2 border-[#b89b72] max-w-xl mx-auto space-y-3 shadow-md">
+          <span className="text-xs font-bold text-[#3d261a] uppercase tracking-wider block font-serif">
+            🧭 Pilihan Jenis Petualangan Lapangan Terpilih:
+          </span>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            {(['Jurnalis', 'Fotografer', 'Petualang'] as ProfileType[]).map((type) => {
+              const isSelected = activeType === type;
+              return (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => handleSelectType(type)}
+                  className={`p-3 rounded-xl border-2 transition-all text-left flex flex-col justify-between space-y-1 shadow ${
+                    isSelected
+                      ? 'bg-[#214a36] text-amber-100 border-emerald-400 ring-2 ring-emerald-500 scale-102 font-bold'
+                      : 'bg-[#fcf8ef] text-[#2b1810] border-[#b89b72] hover:bg-amber-100'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-black font-serif">
+                      {type === 'Jurnalis' && '📰 Jurnalis'}
+                      {type === 'Fotografer' && '📸 Fotografer'}
+                      {type === 'Petualang' && '🧭 Petualang'}
+                    </span>
+                    {isSelected && (
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    )}
+                  </div>
+                  <p className={`text-[10px] leading-tight ${isSelected ? 'text-amber-200' : 'text-stone-600'}`}>
+                    {type === 'Jurnalis' && 'Sajian Teks & Artikel'}
+                    {type === 'Fotografer' && 'Sajian Infografis Visual'}
+                    {type === 'Petualang' && 'Peti & Kuis Interaktif'}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         <button
           onClick={handleOpenGateCheck}
           className="w-full sm:w-auto px-10 py-5 bg-gradient-to-r from-[#214a36] via-[#163627] to-[#0f241a] hover:from-[#2a5d44] hover:to-[#193d2d] text-amber-100 rounded-2xl font-black text-lg md:text-xl shadow-2xl hover:scale-102 transition transform active:scale-98 border-2 border-emerald-500/50 flex items-center justify-center gap-3 mx-auto tracking-wide font-serif"
         >
           <ShieldCheck className="w-6 h-6 text-emerald-400 animate-pulse" />
-          <span>Lanjut ke Ujian Bukti Belajar & Misi Lapangan!</span>
+          <span>Lanjut ke Ujian Bukti Belajar & Misi Lapangan! ({activeType})</span>
           <ArrowRight className="w-6 h-6 text-amber-300" />
         </button>
         <p className="text-xs text-stone-700 font-bold">

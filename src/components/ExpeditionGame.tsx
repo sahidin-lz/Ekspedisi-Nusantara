@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
-import { PlayerProfile, ExpeditionPost } from '../types';
+import { PlayerProfile, ProfileType, ExpeditionPost } from '../types';
 import { EXPEDITION_POSTS } from '../data/sociologyData';
 import { getAvatarById } from '../data/avatarData';
 import { soundFx } from '../utils/audio';
@@ -28,12 +28,14 @@ interface ExpeditionGameProps {
   player: PlayerProfile;
   onRestartGame: () => void;
   onGoToCamp: () => void;
+  onUpdateProfileType?: (newType: ProfileType) => void;
 }
 
 export const ExpeditionGame: React.FC<ExpeditionGameProps> = ({
   player,
   onRestartGame,
   onGoToCamp,
+  onUpdateProfileType,
 }) => {
   const [currentPosIndex, setCurrentPosIndex] = useState<number>(0);
   const [completedPosIndexes, setCompletedPosIndexes] = useState<number[]>([]);
@@ -157,13 +159,36 @@ export const ExpeditionGame: React.FC<ExpeditionGameProps> = ({
             <span className="text-sm font-bold text-amber-200">{player.name}</span>
           </div>
 
-          <div className="bg-[#100906] px-3.5 py-1.5 rounded-xl border border-emerald-600/40 shadow-inner">
-            <span className="text-[10px] text-emerald-400 font-extrabold uppercase tracking-wider block">Gaya Belajar</span>
-            <span className="text-xs font-bold text-emerald-200">
-              {player.profileType === 'Jurnalis' && '🗞️ Jurnalis Auditori'}
-              {player.profileType === 'Fotografer' && '📸 Fotografer Visual'}
-              {player.profileType === 'Petualang' && '🧭 Petualang Kinestetik'}
+          {/* Interactive Gaya Belajar / Jenis Petualangan Switcher */}
+          <div className="bg-[#100906] p-1.5 rounded-xl border border-emerald-600/50 shadow-inner flex flex-col gap-1">
+            <span className="text-[10px] text-emerald-400 font-extrabold uppercase tracking-wider block px-1">
+              Gaya Belajar / Petualangan:
             </span>
+            <div className="flex items-center gap-1">
+              {(['Jurnalis', 'Fotografer', 'Petualang'] as ProfileType[]).map((mode) => {
+                const isActive = player.profileType === mode;
+                return (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => {
+                      soundFx.playClick();
+                      if (onUpdateProfileType) onUpdateProfileType(mode);
+                    }}
+                    className={`px-2 py-0.5 rounded-lg text-[11px] font-bold transition ${
+                      isActive
+                        ? 'bg-amber-400 text-emerald-950 font-black shadow'
+                        : 'text-amber-200 hover:text-white hover:bg-amber-900/50'
+                    }`}
+                    title={`Ganti Gaya Belajar ke ${mode}`}
+                  >
+                    {mode === 'Jurnalis' && '🗞️ Jurnalis'}
+                    {mode === 'Fotografer' && '📸 Fotografer'}
+                    {mode === 'Petualang' && '🧭 Petualang'}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 

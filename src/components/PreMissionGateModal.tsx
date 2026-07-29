@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { PRE_MISSION_QUESTIONS } from '../data/sociologyData';
+import { ProfileType } from '../types';
 import { soundFx } from '../utils/audio';
 import {
   ShieldCheck,
@@ -11,18 +12,26 @@ import {
   Award,
   Lock,
   Unlock,
+  Headphones,
+  Eye,
+  Activity,
 } from 'lucide-react';
 
 interface PreMissionGateModalProps {
   onPassGate: () => void;
   onCancel: () => void;
+  activeProfileType?: ProfileType;
+  onUpdateProfileType?: (newType: ProfileType) => void;
 }
 
 export const PreMissionGateModal: React.FC<PreMissionGateModalProps> = ({
   onPassGate,
   onCancel,
+  activeProfileType = 'Jurnalis',
+  onUpdateProfileType,
 }) => {
   const [currentIdx, setCurrentIdx] = useState<number>(0);
+  const [selectedProfile, setSelectedProfile] = useState<ProfileType>(activeProfileType);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [isAnswered, setIsAnswered] = useState<boolean>(false);
   const [score, setScore] = useState<number>(0);
@@ -111,6 +120,39 @@ export const PreMissionGateModal: React.FC<PreMissionGateModalProps> = ({
                   ? 'Kamu terbukti telah mempelajari video dan materi di Kemah Belajar dengan sungguh-sungguh. Gerbang ekspedisi telah terbuka lebar!'
                   : 'Kamu belum memenuhi skor minimal. Disarankan untuk menonton ulang video atau membaca rangkuman di Kemah Belajar.'}
               </p>
+            </div>
+
+            {/* JENIS PETUALANGAN SELECTOR */}
+            <div className="bg-[#ebd2b0]/80 p-4 rounded-2xl border-2 border-[#b89b72] space-y-2 max-w-md mx-auto">
+              <span className="text-xs font-bold text-[#3d261a] block">
+                🧭 Konfirmasi / Pilih Jenis Petualangan Lapangan:
+              </span>
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                {(['Jurnalis', 'Fotografer', 'Petualang'] as ProfileType[]).map((type) => {
+                  const isSel = selectedProfile === type;
+                  return (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => {
+                        soundFx.playClick();
+                        setSelectedProfile(type);
+                        if (onUpdateProfileType) onUpdateProfileType(type);
+                      }}
+                      className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow ${
+                        isSel
+                          ? 'bg-[#214a36] text-amber-100 ring-2 ring-emerald-400 border border-emerald-300 font-black scale-105'
+                          : 'bg-[#fcf8ef] text-[#3d261a] border border-[#b89b72] hover:bg-amber-100'
+                      }`}
+                    >
+                      {type === 'Jurnalis' && <Headphones className="w-3.5 h-3.5 text-amber-300" />}
+                      {type === 'Fotografer' && <Eye className="w-3.5 h-3.5 text-amber-300" />}
+                      {type === 'Petualang' && <Activity className="w-3.5 h-3.5 text-amber-300" />}
+                      <span>{type}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">

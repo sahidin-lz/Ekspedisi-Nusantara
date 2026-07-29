@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PlayerProfile } from './types';
+import { PlayerProfile, ProfileType } from './types';
 import { Navbar } from './components/Navbar';
 import { DiagnosticAssessment } from './components/DiagnosticAssessment';
 import { LearningCamp } from './components/LearningCamp';
@@ -15,6 +15,12 @@ export default function App() {
     setPlayer(profile);
     setCurrentScreen(2);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleUpdateProfileType = (newType: ProfileType) => {
+    if (player) {
+      setPlayer({ ...player, profileType: newType });
+    }
   };
 
   const handleStartGame = () => {
@@ -63,7 +69,11 @@ export default function App() {
           )}
 
           {currentScreen === 2 && player && (
-            <LearningCamp player={player} onStartGame={handleStartGame} />
+            <LearningCamp
+              player={player}
+              onStartGame={handleStartGame}
+              onUpdateProfileType={handleUpdateProfileType}
+            />
           )}
 
           {currentScreen === 3 && player && (
@@ -71,6 +81,7 @@ export default function App() {
               player={player}
               onRestartGame={handleRestart}
               onGoToCamp={handleGoToCamp}
+              onUpdateProfileType={handleUpdateProfileType}
             />
           )}
 
