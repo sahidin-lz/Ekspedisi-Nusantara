@@ -86,3 +86,27 @@ export const savePostToFirestore = async (postItem: ExpeditionPost) => {
     console.error('Failed to save post to Firestore:', err);
   }
 };
+
+// Seed all data (students, modules, posts) to Firestore
+export const seedAllDataToFirestore = async (
+  students: StudentEvaluation[],
+  modules: SociologyModule[],
+  posts: ExpeditionPost[]
+) => {
+  try {
+    for (const student of students) {
+      await saveStudentToFirestore(student);
+    }
+    for (const moduleItem of modules) {
+      await saveModuleToFirestore(moduleItem);
+    }
+    for (const postItem of posts) {
+      await savePostToFirestore(postItem);
+    }
+    return { success: true };
+  } catch (err: any) {
+    console.error('Error seeding data to Firestore:', err);
+    return { success: false, error: err?.message || String(err) };
+  }
+};
+

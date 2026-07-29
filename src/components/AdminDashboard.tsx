@@ -19,6 +19,7 @@ import {
   deleteStudentFromFirestore,
   saveModuleToFirestore,
   savePostToFirestore,
+  seedAllDataToFirestore,
 } from '../lib/firestoreService';
 import {
   ShieldCheck,
@@ -38,6 +39,7 @@ import {
   Lock,
   Printer,
   Download,
+  CloudUpload,
   X,
   Sparkles,
   HelpCircle,
@@ -189,6 +191,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onCloseAdmin, ac
   useEffect(() => {
     localStorage.setItem('sosiologi_custom_posts', JSON.stringify(expeditionPosts));
   }, [expeditionPosts]);
+
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncStatusMsg, setSyncStatusMsg] = useState<string | null>(null);
+
+  const handleSyncToFirebase = async () => {
+    soundFx.playChestOpen();
+    setIsSyncing(true);
+    setSyncStatusMsg('Sedang mengunggah data ke Firebase...');
+    const res = await seedAllDataToFirestore(students, modules, expeditionPosts);
+    setIsSyncing(false);
+    if (res.success) {
+      setSyncStatusMsg('✅ Berhasil unggah data ke Firebase "ekspedisi-nusantara"!');
+    } else {
+      setSyncStatusMsg(`❌ Gagal: ${res.error}`);
+    }
+    setTimeout(() => setSyncStatusMsg(null), 6000);
+  };
 
   // Auth Submit
   const handleAuthSubmit = (e: React.FormEvent) => {
@@ -382,7 +401,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onCloseAdmin, ac
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={handleSyncToFirebase}
+                disabled={isSyncing}
+                className="px-3.5 py-2 bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-600 hover:to-amber-700 text-amber-100 rounded-xl text-xs font-bold border border-amber-400/50 flex items-center gap-1.5 shadow active:scale-95 disabled:opacity-50"
+                title="Unggah semua data siswa, modul, dan pos ke Firestore ekspedisi-nusantara"
+              >
+                <CloudUpload className={`w-4 h-4 text-amber-300 ${isSyncing ? 'animate-bounce' : ''}`} />
+                <span>{isSyncing ? 'Mengunggah...' : 'Unggah ke Firebase'}</span>
+              </button>
+
               <button
                 onClick={handleExportCSV}
                 className="px-3.5 py-2 bg-gradient-to-r from-emerald-800 to-emerald-900 hover:from-emerald-700 hover:to-emerald-800 text-amber-100 rounded-xl text-xs font-bold border border-emerald-500/50 flex items-center gap-1.5 shadow"
@@ -400,6 +429,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onCloseAdmin, ac
               </button>
             </div>
           </div>
+
+          {syncStatusMsg && (
+            <div className="bg-amber-900/90 text-amber-100 px-4 py-3 rounded-xl border border-amber-500 text-xs font-bold flex items-center justify-between shadow-lg animate-fadeIn">
+              <span>{syncStatusMsg}</span>
+              <button onClick={() => setSyncStatusMsg(null)} className="text-amber-300 hover:text-white">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          )}
 
           {/* KPI Analytics Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
