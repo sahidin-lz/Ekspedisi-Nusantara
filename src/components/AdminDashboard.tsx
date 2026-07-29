@@ -14,6 +14,13 @@ import {
 import { AVATARS, getAvatarById } from '../data/avatarData';
 import { soundFx } from '../utils/audio';
 import {
+  subscribeStudents,
+  saveStudentToFirestore,
+  deleteStudentFromFirestore,
+  saveModuleToFirestore,
+  savePostToFirestore,
+} from '../lib/firestoreService';
+import {
   ShieldCheck,
   Users,
   BookOpen,
@@ -161,7 +168,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onCloseAdmin, ac
   });
   const [editingPost, setEditingPost] = useState<ExpeditionPost | null>(null);
 
-  // Save to LocalStorage whenever state changes
+  // Subscribe to Firestore for live student data
+  useEffect(() => {
+    const unsubscribe = subscribeStudents((data) => {
+      setStudents(data);
+    }, INITIAL_STUDENTS);
+
+    return () => unsubscribe();
+  }, []);
+
+  // Save to LocalStorage whenever state changes as backup
   useEffect(() => {
     localStorage.setItem('sosiologi_student_records', JSON.stringify(students));
   }, [students]);
@@ -194,6 +210,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onCloseAdmin, ac
     setStudents((prev) =>
       prev.map((s) => (s.id === selectedStudent.id ? selectedStudent : s))
     );
+    saveStudentToFirestore(selectedStudent);
     setShowStudentModal(false);
     setSelectedStudent(null);
   };
@@ -203,15 +220,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onCloseAdmin, ac
     setStudents((prev) =>
       prev.map((s) => {
         if (s.id === id) {
-          return {
+          const updated = {
             ...s,
             postsCompleted: 0,
             livesRemaining: 3,
             evalScore: 0,
-            grade: 'Perlu Remedial',
-            status: 'Sedang Belajar',
+            grade: 'Perlu Remedial' as const,
+            status: 'Sedang Belajar' as const,
             teacherNotes: 'Akses perbaikan/remedial diizinkan oleh guru.',
           };
+          saveStudentToFirestore(updated);
+          return updated;
         }
         return s;
       })
@@ -238,6 +257,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onCloseAdmin, ac
     };
 
     setStudents((prev) => [newEntry, ...prev]);
+    saveStudentToFirestore(newEntry);
     setNewStudentName('');
     setShowAddStudentModal(false);
   };
@@ -245,6 +265,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onCloseAdmin, ac
   const handleDeleteStudent = (id: string) => {
     soundFx.playClick();
     setStudents((prev) => prev.filter((s) => s.id !== id));
+    deleteStudentFromFirestore(id);
   };
 
   const handleExportCSV = () => {
@@ -976,6 +997,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onCloseAdmin, ac
                   setModules((prev) =>
                     prev.map((m) => (m.id === editingModule.id ? editingModule : m))
                   );
+                  saveModuleToFirestore(editingModule);
                   setEditingModule(null);
                 }}
                 className="px-5 py-2 bg-[#214a36] text-amber-100 rounded-xl text-xs font-bold shadow"
@@ -1075,6 +1097,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onCloseAdmin, ac
                   setExpeditionPosts((prev) =>
                     prev.map((p) => (p.id === editingPost.id ? editingPost : p))
                   );
+                  savePostToFirestore(editingPost);
                   setEditingPost(null);
                 }}
                 className="px-5 py-2 bg-[#214a36] text-amber-100 rounded-xl text-xs font-bold shadow"

@@ -1,6 +1,7 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
+import appletConfig from '../../firebase-applet-config.json';
 
 export const firebaseConfig = {
   apiKey: "AIzaSyB-JQQc650ACF_P6-U4U7O31V0asZcM-yk",
@@ -13,6 +14,10 @@ export const firebaseConfig = {
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-export const db = getFirestore(app);
+export const db = appletConfig.firestoreDatabaseId && appletConfig.firestoreDatabaseId !== '(default)'
+  ? getFirestore(app, appletConfig.firestoreDatabaseId)
+  : getFirestore(app);
+
 export const auth = getAuth(app);
+
 

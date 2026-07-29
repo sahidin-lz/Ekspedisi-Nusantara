@@ -4,6 +4,7 @@ import { PlayerProfile, ExpeditionPost } from '../types';
 import { EXPEDITION_POSTS } from '../data/sociologyData';
 import { getAvatarById } from '../data/avatarData';
 import { soundFx } from '../utils/audio';
+import { saveStudentToFirestore } from '../lib/firestoreService';
 import { ExpeditionMap } from './ExpeditionMap';
 import {
   Heart,
@@ -101,6 +102,24 @@ export const ExpeditionGame: React.FC<ExpeditionGameProps> = ({
 
   const handleNextPos = () => {
     soundFx.playClick();
+    const updatedPostsCount = completedPosIndexes.length;
+    
+    // Save progress to Firestore
+    saveStudentToFirestore({
+      id: `std-${player.name.toLowerCase().replace(/\s+/g, '-')}`,
+      studentName: player.name,
+      avatarId: player.avatarId,
+      profileType: player.profileType,
+      pretestScore: 100,
+      postsCompleted: updatedPostsCount,
+      livesRemaining: lives,
+      evalScore: Math.round((updatedPostsCount / 5) * 100),
+      grade: updatedPostsCount >= 5 ? 'A' : updatedPostsCount >= 4 ? 'B' : 'Perlu Remedial',
+      status: updatedPostsCount >= 5 ? 'Selesai' : 'Sedang Belajar',
+      teacherNotes: `Telah menyelesaikan ${updatedPostsCount} pos ekspedisi.`,
+      updatedAt: new Date().toLocaleDateString('id-ID'),
+    });
+
     if (currentPosIndex < EXPEDITION_POSTS.length - 1) {
       setCurrentPosIndex((prev) => prev + 1);
       setSelectedOptionId(null);
